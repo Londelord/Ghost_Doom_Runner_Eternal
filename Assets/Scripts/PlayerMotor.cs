@@ -10,6 +10,7 @@ public class PlayerMotor : MonoBehaviour
     private Vector3 playerVelocity;
     private bool isGrounded;
     private bool isDashing = false;
+    private int jumpAmount = 0;
 
     public float speed = 5f;
     public float gravity = -9.8f;
@@ -18,9 +19,16 @@ public class PlayerMotor : MonoBehaviour
     [SerializeField] private AnimationCurve dashSpeedCurve;
     [SerializeField] private float dashTime = 0.5f;
 
+    [Header("Camera")]
+    [SerializeField] private Camera cam;
+    [SerializeField] private float maxChangeFieldOfView;
+    [SerializeField] private AnimationCurve camChangeCurve;
+    [SerializeField] private float defaultFieldOfView;
+    
     void Start()
     {
         controller = GetComponent<CharacterController>();
+        cam.fieldOfView = defaultFieldOfView;
     }
 
     void Update()
@@ -48,7 +56,14 @@ public class PlayerMotor : MonoBehaviour
         if (isGrounded)
         {
             playerVelocity.y = Mathf.Sqrt(jumpHeight * -3f * gravity);
+            ++jumpAmount;
         }
+        else if (jumpAmount == 1)
+        {
+            playerVelocity.y = Mathf.Sqrt(jumpHeight * -3f * gravity);
+            ++jumpAmount;
+        }
+        else { jumpAmount = 0; }
     }
 
     public IEnumerator Dash(Vector2 direction)
@@ -64,12 +79,19 @@ public class PlayerMotor : MonoBehaviour
             var velocityMultiplier = dashSpeed * dashSpeedCurve.Evaluate(elapsedTime);
 
             ApplyVelocity(direction, velocityMultiplier);
+            ChangeFieldOfView(elapsedTime);
 
             elapsedTime += Time.deltaTime;
             yield return new WaitForSeconds(Time.deltaTime);
         }
+        cam.fieldOfView = defaultFieldOfView;
         isDashing = false;
         yield break;
+    }
+
+    private void ChangeFieldOfView(float elapsedTime)
+    {
+        cam.fieldOfView = defaultFieldOfView + camChangeCurve.Evaluate(elapsedTime) * maxChangeFieldOfView;
     }
 
     private void ApplyVelocity(Vector3 desiredVelocity, float multiplier)
@@ -78,7 +100,5 @@ public class PlayerMotor : MonoBehaviour
         moveDirection.x = desiredVelocity.x;
         moveDirection.z = desiredVelocity.y;
         controller.Move(transform.TransformDirection(moveDirection) * multiplier);
-
-
     }
 }

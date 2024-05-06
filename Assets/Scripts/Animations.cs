@@ -6,7 +6,7 @@ public class Animations : MonoBehaviour
 {
     private Animator animator;
     private float lastTimeAtack = 0f;
-    private float velocityRunStart = 0.45f;
+    private bool nAtack = false;
 
     private void Awake()
     {
@@ -20,6 +20,7 @@ public class Animations : MonoBehaviour
 
     public void AtackAnimation()
     {
+        if (animator.GetBool("Block")) return;
         if (lastTimeAtack > 0.3f)
         {
             animator.SetTrigger("Atack");
@@ -34,17 +35,5 @@ public class Animations : MonoBehaviour
     public void BlockAnimations(bool isBlocking)
     {
         animator.SetBool("Block", isBlocking);
-    }
-
-    public void RunAnimation(Vector2 input)
-    {
-        if (input.x != 0 || input.y > 0)
-        {
-            animator.SetBool("Running", true);
-        }
-        else
-        {
-            animator.SetBool("Running", false);
-        }
     }
 }

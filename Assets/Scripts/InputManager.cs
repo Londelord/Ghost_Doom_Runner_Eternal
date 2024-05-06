@@ -27,8 +27,11 @@ public class InputManager : MonoBehaviour
         onFoot.Atack.performed += ctx => animations.AtackAnimation();
         onFoot.Block.started += ctx => animations.BlockAnimations(true);
         onFoot.Block.canceled += ctx => animations.BlockAnimations(false);
-        onFoot.Movement.performed += ctx => animations.RunAnimation(onFoot.Movement.ReadValue<Vector2>());
-        onFoot.Movement.canceled += ctx => animations.RunAnimation(new Vector2(0, 0));
+    }
+
+    private void Start()
+    {
+        Cursor.lockState = CursorLockMode.Locked;
     }
 
     void FixedUpdate()
